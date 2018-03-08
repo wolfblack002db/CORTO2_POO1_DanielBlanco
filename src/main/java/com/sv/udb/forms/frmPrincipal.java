@@ -4,6 +4,11 @@
  * and open the template in the editor.
  */
 package com.sv.udb.forms;
+import com.sv.udb.controlador.SeresVivosCtrl;
+import com.sv.udb.modelo.ModeloSeres;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -14,8 +19,13 @@ public class frmPrincipal extends javax.swing.JFrame {
     /**
      * Creates new form frmPrincipal
      */
+    int idser =0;
+    SeresVivosCtrl seresVivosCtrl;
     public frmPrincipal() {
         initComponents();
+        llenarTablaSeres();
+        this.seresVivosCtrl = new SeresVivosCtrl();
+        cargarcomboseres();
     }
 
     /**
@@ -31,7 +41,7 @@ public class frmPrincipal extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblSeres = new javax.swing.JTable();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        cmbSeres = new javax.swing.JComboBox<>();
         txtNombre = new javax.swing.JTextField();
         txtDescripcion = new javax.swing.JTextField();
         btnGuardar = new javax.swing.JButton();
@@ -56,11 +66,26 @@ public class frmPrincipal extends javax.swing.JFrame {
                 "Nombre", "Descripcion", "Pertenece a"
             }
         ));
+        tblSeres.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblSeresMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblSeres);
 
         btnGuardar.setText("Guardar");
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGuardarActionPerformed(evt);
+            }
+        });
 
         btnModificar.setText("Modificar");
+        btnModificar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnModificarActionPerformed(evt);
+            }
+        });
 
         btnLimpiar.setText("Limpiar");
 
@@ -84,7 +109,7 @@ public class frmPrincipal extends javax.swing.JFrame {
                                 .addComponent(btnGuardar)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 67, Short.MAX_VALUE)
                                 .addComponent(btnModificar))
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(cmbSeres, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel1)
@@ -112,7 +137,7 @@ public class frmPrincipal extends javax.swing.JFrame {
                             .addComponent(jLabel2)
                             .addComponent(txtDescripcion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cmbSeres, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnGuardar)
@@ -127,6 +152,69 @@ public class frmPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+        // TODO add your handling code here:
+        try
+        {
+            if (new SeresVivosCtrl().guar(txtNombre.getText(),txtDescripcion.getText(),(ModeloSeres) cmbSeres.getSelectedItem())) 
+            {
+                JOptionPane.showMessageDialog(this, "Ser vivo guardado correctamente", "POO", JOptionPane.INFORMATION_MESSAGE);
+                limpiar();
+                llenarTablaSeres();
+                
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(this, "Error al guardar jugador, favor verifique","POO", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception e) 
+        {
+            JOptionPane.showMessageDialog(this, "Error al PROCESAR","POO", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnGuardarActionPerformed
+
+    private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
+        try {
+       
+        if(idser != 0){
+            if(new SeresVivosCtrl().modificar(idser, txtNombre.getText(),txtDescripcion.getText(),
+                    (ModeloSeres)cmbSeres.getSelectedItem())){
+                JOptionPane.showMessageDialog(this, "Se modifico correctamente");
+                limpiar();
+                llenarTablaSeres();
+                cargarcomboseres();
+            }else{
+                JOptionPane.showMessageDialog(this, "No se pudo modificar");
+            }
+        }else{
+            JOptionPane.showMessageDialog(this, "No se ha seleccionado ningun ser vivo");
+        }
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }//GEN-LAST:event_btnModificarActionPerformed
+
+    private void tblSeresMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblSeresMouseClicked
+        int fila = this.tblSeres.getSelectedRow();
+        if (fila >= 0) {
+            ModeloSeres obje = (ModeloSeres) this.tblSeres.getValueAt(fila, 0);
+            idser = obje.getCodi_sere();
+            txtNombre.setText(obje.getNomb_sere());
+            txtDescripcion.setText(obje.getDesc_sere());
+            cmbSeres.setEditable(true);
+            cmbSeres.setSelectedItem(obje.getCodi_refe_sere());
+            cmbSeres.setEditable(false);
+        }
+    }//GEN-LAST:event_tblSeresMouseClicked
+
+    public void cargarcomboseres(){
+        DefaultComboBoxModel<ModeloSeres> modeEqui = new DefaultComboBoxModel<>();
+        for (ModeloSeres temp : seresVivosCtrl.obtenerTodo()) {
+            modeEqui.addElement(temp);
+        }
+        this.cmbSeres.setModel((DefaultComboBoxModel)modeEqui);
+    }
     /**
      * @param args the command line arguments
      */
@@ -167,7 +255,7 @@ public class frmPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnLimpiar;
     private javax.swing.JButton btnModificar;
-    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JComboBox<String> cmbSeres;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
@@ -175,4 +263,23 @@ public class frmPrincipal extends javax.swing.JFrame {
     private javax.swing.JTextField txtDescripcion;
     private javax.swing.JTextField txtNombre;
     // End of variables declaration//GEN-END:variables
+
+    private void limpiar() {
+        txtDescripcion.setText("");
+        txtNombre.setText("");
+    }
+
+    private void llenarTablaSeres() {
+        try {
+            DefaultTableModel model = (DefaultTableModel) this.tblSeres.getModel();
+            while (model.getRowCount() > 0) {
+                model.removeRow(0);
+            } //Limpiar modelo
+            for (ModeloSeres temp : new SeresVivosCtrl().consTodo()) {
+                model.addRow(new Object[]{temp,temp.getDesc_sere(),temp.getCodi_refe_sere()});
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+    }
 }
